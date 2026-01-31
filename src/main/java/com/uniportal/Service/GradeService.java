@@ -10,6 +10,7 @@ import com.uniportal.Repository.GradeRepository;
 import com.uniportal.Repository.StudentRepository;
 import com.uniportal.User.Student;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.parsers.ReturnTypeParser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +25,15 @@ public class GradeService {
     private final StudentRepository studentRepository;
     private final GradeRepository gradeRepository;
     private final CourseRepository courseRepository;
+    private final ReturnTypeParser returnTypeParser;
 
     public GradeService(StudentRepository studentRepository,
                         GradeRepository gradeRepository,
-                        CourseRepository courseRepository) {
+                        CourseRepository courseRepository, ReturnTypeParser returnTypeParser) {
         this.studentRepository = studentRepository;
         this.gradeRepository = gradeRepository;
         this.courseRepository = courseRepository;
+        this.returnTypeParser = returnTypeParser;
     }
 
     @Transactional
@@ -67,11 +70,7 @@ public class GradeService {
                 .toList();
 
         String teacherName = course.getTeacher().getFirstName()+" " + course.getTeacher().getLastName();
-        double avg = gradeList
-                .stream()
-                .mapToDouble(g->g.getValue()
-                .getNumericValue())
-                .average().orElse(0.0);
+        double avg = averageGradeCalculator(gradeList);
 
 
 
@@ -106,12 +105,16 @@ public class GradeService {
 
     List<StudentPerformanceDto> performanceDtos = course.getStudents().stream()
         .map(student -> {
-            double avg = course.getGrades().stream()
+            List<Grade> studentGrades = course.getGrades().stream()
                 .filter(g -> g.getStudent().getId().equals(student.getId()))
-                .mapToDouble(g -> g.getValue().getNumericValue())
-                .average().orElse(0.0);
+                .toList();
 
-            return new StudentPerformanceDto(student.getFirstName() + " " + student.getLastName(), avg);
+            double avg = averageGradeCalculator(studentGrades);
+
+            return new StudentPerformanceDto(
+                student.getFirstName() + " " + student.getLastName(),
+                avg
+            );
         })
         .sorted(Comparator.comparing(StudentPerformanceDto::fullStudentName))
         .toList();
@@ -120,6 +123,16 @@ public class GradeService {
 }
 
     //private mothods-----------------------------
+
+    private double averageGradeCalculator(List<Grade> gradeList){
+        double average = gradeList.stream()
+    .mapToDouble(grade -> grade.getValue().getNumericValue())
+    .average()
+    .orElse(0.0);
+
+        return average;
+    }
+
 
     private Student findStudentById(Long studentId){
         Student student = studentRepository

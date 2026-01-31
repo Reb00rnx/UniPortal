@@ -3,6 +3,7 @@ package com.uniportal.Service;
 
 import com.uniportal.Course.Dto.CourseRequestDto;
 import com.uniportal.Course.Dto.CourseResponseDto;
+import com.uniportal.Exceptions.ConflictException;
 import com.uniportal.User.Dto.StudentResponseDto;
 import com.uniportal.User.Dto.TeacherResponseDto;
 import com.uniportal.Exceptions.ResourceNotFoundException;
@@ -63,7 +64,7 @@ public class CourseService {
                 .orElseThrow(()->new ResourceNotFoundException("Student id:" + studentId + " not found"));
 
         if(course.getStudents().contains(student)){
-            throw new RuntimeException("Student is already enrolled in this course");
+            throw new ConflictException("Student is already enrolled in this course");
         }
         course.addStudent(student);
         return mapToResponse(course);
@@ -71,11 +72,11 @@ public class CourseService {
 
 
     @Transactional
-    public void deleteCourse(Long id){
-        if (!courseRepository.existsById(id)) {
-        throw new RuntimeException("Course with id " + id + " not found");
+    public void deleteCourse(Long courseId){
+        if (!courseRepository.existsById(courseId)) {
+        throw new ResourceNotFoundException("Course with id: " + courseId + " not found");
     }
-    courseRepository.deleteById(id);
+    courseRepository.deleteById(courseId);
     }
 
 

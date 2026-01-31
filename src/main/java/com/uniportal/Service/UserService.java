@@ -42,9 +42,7 @@ public class UserService {
     @Transactional
     public StudentResponseDto createStudent(StudentRequestDto requestDto){
 
-        if (userRepository.existsByEmail(generateEmail(requestDto.firstName(), requestDto.lastName()))) {
-        throw new ConflictException("User with this email already exists");
-    }
+
         Student student = new Student(
                 requestDto.firstName(),
                 requestDto.lastName(),
@@ -97,11 +95,8 @@ public class UserService {
         Teacher teacher = teacherRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
 
-
-    if (courseRepository.existsByTeacher(teacher)) {
-        throw new BusinessLogicException("Cannot delete teacher: he still has assigned courses!");
-    }
-
+    List<Course> courses = courseRepository.findAllByTeacher(teacher);
+    courses.forEach(course-> course.setTeacher(null));
     teacherRepository.delete(teacher);
     }
 
@@ -110,17 +105,20 @@ public class UserService {
 
     private String generateEmail(String firstName,String lastName){
         String base = firstName.toLowerCase() + "." + lastName.toLowerCase();
-        String email = base + "@uniportal.com";
+    String email = base + "@uniportal.com";
+    Random random = new Random();
+    int attempts = 0;
 
-        if (userRepository.existsByEmail(email)) {
-        Random random = new Random();
 
-        while (userRepository.existsByEmail(email)) {
-            int number = random.nextInt(100);
-            email = base + number + "@uniportal.com";
+    while (userRepository.existsByEmail(email)) {
+        if (attempts >= 5) {
+            throw new ConflictException("User with this email already exists");
         }
+        int number = random.nextInt(100);
+        email = base + number + "@uniportal.com";
+        attempts++;
     }
-        return email;
+    return email;
     }
 
     private String indexGenerator(){
