@@ -122,7 +122,7 @@ public class GradeService {
     return new CourseTeacherReportDto(course.getName(), performanceDtos);
 }
 
-    //private mothods-----------------------------
+    //private methods-----------------------------
 
     private double averageGradeCalculator(List<Grade> gradeList){
         double average = gradeList.stream()

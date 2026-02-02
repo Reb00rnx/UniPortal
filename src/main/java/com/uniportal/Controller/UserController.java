@@ -21,16 +21,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/students")
-    public ResponseEntity<StudentResponseDto> createStudent(@Valid @RequestBody StudentRequestDto requestDto){
-        StudentResponseDto responseDto = userService.createStudent(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-    }
-    @PostMapping("/teachers")
-    public ResponseEntity<TeacherResponseDto> createTeacher(@Valid @RequestBody TeacherRequestDto requestDto){
-        TeacherResponseDto responseDto = userService.createTeacher(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-    }
 
     @DeleteMapping("/students/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id){

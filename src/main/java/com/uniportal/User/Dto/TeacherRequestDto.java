@@ -2,6 +2,7 @@ package com.uniportal.User.Dto;
 
 import com.uniportal.Enums.AcademicTitle;
 import com.uniportal.Enums.DepartmentName;
+import com.uniportal.Enums.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -20,6 +21,9 @@ public record TeacherRequestDto (
     @NotNull(message = "You must choose academic title")
     AcademicTitle academicTitle,
     @NotNull(message = "Select department name")
-    DepartmentName departmentName
+    DepartmentName departmentName,
+    @NotNull(message = "Select role")
+    Role role
+
 )
 {}

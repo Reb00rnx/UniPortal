@@ -48,4 +48,6 @@ public ResponseEntity<List<GradeResponseDto>> getAllStudentGrades(@PathVariable 
         return ResponseEntity.ok(reportDto);
     }
 
+
+
 }

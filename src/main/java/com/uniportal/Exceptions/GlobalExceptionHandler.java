@@ -35,4 +35,20 @@ public class GlobalExceptionHandler{
 }
 
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+public ResponseEntity<ErrorMessage> handleBadCredentials(org.springframework.security.authentication.BadCredentialsException ex) {
+    return new ResponseEntity<>(
+            new ErrorMessage("Invalid email or password", Instant.now()),
+            HttpStatus.UNAUTHORIZED
+    );
+}
+
+@ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+public ResponseEntity<ErrorMessage> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+    return new ResponseEntity<>(
+            new ErrorMessage("You do not have permission to access this resource", Instant.now()),
+            HttpStatus.FORBIDDEN
+    );
+}
+
 }

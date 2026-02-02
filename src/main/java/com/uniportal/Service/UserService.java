@@ -1,6 +1,7 @@
 package com.uniportal.Service;
 
 
+import com.uniportal.Enums.Role;
 import com.uniportal.Exceptions.BusinessLogicException;
 import com.uniportal.Exceptions.ConflictException;
 import com.uniportal.Exceptions.ResourceNotFoundException;
@@ -15,6 +16,7 @@ import com.uniportal.User.Dto.TeacherRequestDto;
 import com.uniportal.User.Dto.TeacherResponseDto;
 import com.uniportal.User.Student;
 import com.uniportal.User.Teacher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,54 +26,52 @@ import java.util.Random;
 @Service
 public class UserService {
 
-    private StudentRepository studentRepository;
-    private TeacherRepository teacherRepository;
-    private UserRepository userRepository;
-    private CourseRepository courseRepository;
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(StudentRepository studentRepository,
                        TeacherRepository teacherRepository,
                        UserRepository userRepository,
-                       CourseRepository courseRepository) {
+                       CourseRepository courseRepository,
+                       PasswordEncoder passwordEncoder) {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public StudentResponseDto createStudent(StudentRequestDto requestDto){
+    public Student createStudent(StudentRequestDto requestDto) {
+        Student student = Student.builder()
+                .firstName(requestDto.firstName())
+                .lastName(requestDto.lastName())
+                .email(generateEmail(requestDto.firstName(), requestDto.lastName(),Role.STUDENT))
+                .password(passwordEncoder.encode(requestDto.password()))
+                .role(Role.STUDENT)
+                .indexNumber(indexGenerator())
+                .build();
 
 
-        Student student = new Student(
-                requestDto.firstName(),
-                requestDto.lastName(),
-                generateEmail(requestDto.firstName(), requestDto.lastName()),
-                requestDto.password(),
-                indexGenerator());
-
-        Student savedStudent = studentRepository.save(student);
-        return mapToResponse(savedStudent);
+        return studentRepository.save(student);
     }
 
     @Transactional
-    public TeacherResponseDto createTeacher(TeacherRequestDto requestDto){
-        String generatedEmail = generateEmail(requestDto.firstName(), requestDto.lastName());
+    public Teacher createTeacher(TeacherRequestDto requestDto) {
+        Teacher teacher = Teacher.builder()
+                .firstName(requestDto.firstName())
+                .lastName(requestDto.lastName())
+                .email(generateEmail(requestDto.firstName(), requestDto.lastName(),Role.TEACHER))
+                .password(passwordEncoder.encode(requestDto.password()))
+                .role(Role.TEACHER)
+                .academicTitle(requestDto.academicTitle())
+                .department(requestDto.departmentName())
+                .build();
 
-        if (userRepository.existsByEmail(generatedEmail)) {
-            throw new ConflictException("User with this email already exists: " + generatedEmail);
-        }
-
-        Teacher teacher = new Teacher(
-                requestDto.firstName(),
-                requestDto.lastName(),
-                generatedEmail,
-                requestDto.password(),
-                requestDto.academicTitle(),
-                requestDto.departmentName());
-
-        Teacher savedTeacher = teacherRepository.save(teacher);
-        return mapToResponse(savedTeacher);
+        return teacherRepository.save(teacher);
     }
 
 
@@ -101,11 +101,18 @@ public class UserService {
     }
 
 
-    //private mothods------------------------------------------------------
+    //private methods------------------------------------------------------
 
-    private String generateEmail(String firstName,String lastName){
+    private String generateEmail(String firstName,String lastName, Role role){
         String base = firstName.toLowerCase() + "." + lastName.toLowerCase();
-    String email = base + "@uniportal.com";
+
+        String template = switch (role){
+        case Role.STUDENT-> "@student.uniportal.com";
+        case Role.TEACHER-> "@uniportal.com";
+        default -> throw new IllegalArgumentException("Unknown role: " + role);
+    };
+    String email = base + template;
+
     Random random = new Random();
     int attempts = 0;
 
@@ -115,7 +122,7 @@ public class UserService {
             throw new ConflictException("User with this email already exists");
         }
         int number = random.nextInt(100);
-        email = base + number + "@uniportal.com";
+        email = base + number + template;
         attempts++;
     }
     return email;

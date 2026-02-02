@@ -3,15 +3,14 @@ package com.uniportal.Service;
 import com.uniportal.Course.Course;
 import com.uniportal.Enums.AcademicTitle;
 import com.uniportal.Enums.DepartmentName;
+import com.uniportal.Enums.Role;
 import com.uniportal.Exceptions.ConflictException;
 import com.uniportal.Repository.CourseRepository;
 import com.uniportal.Repository.StudentRepository;
 import com.uniportal.Repository.TeacherRepository;
 import com.uniportal.Repository.UserRepository;
 import com.uniportal.User.Dto.StudentRequestDto;
-import com.uniportal.User.Dto.StudentResponseDto;
 import com.uniportal.User.Dto.TeacherRequestDto;
-import com.uniportal.User.Dto.TeacherResponseDto;
 import com.uniportal.User.Student;
 import com.uniportal.User.Teacher;
 import org.junit.jupiter.api.Test;
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +39,8 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private CourseRepository courseRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -49,7 +51,8 @@ class UserServiceTest {
     StudentRequestDto requestDto = new StudentRequestDto(
             "Jan",
             "Kowalski",
-            "password123");
+            "password123",
+            Role.STUDENT);
     String expectedEmail = "jan.kowalski@uniportal.com";
 
         Student savedStudent = new Student(
@@ -62,16 +65,17 @@ class UserServiceTest {
 
     // when
     when(studentRepository.save(any(Student.class))).thenReturn(savedStudent);
-    StudentResponseDto result = userService.createStudent(requestDto);
+    when(passwordEncoder.encode(anyString())).thenReturn("hashed_password");
+    Student result = userService.createStudent(requestDto);
 
     // then
     verify(studentRepository).save(any(Student.class));
 
-        assertEquals(savedStudent.getId(),result.id());
-        assertEquals(savedStudent.getFirstName(),result.firstName());
-        assertEquals(savedStudent.getLastName(),result.lastName());
-        assertEquals(savedStudent.getEmail(),result.email());
-        assertEquals(savedStudent.getIndexNumber(),result.indexNumber());
+        assertEquals(savedStudent.getId(),result.getId());
+        assertEquals(savedStudent.getFirstName(),result.getFirstName());
+        assertEquals(savedStudent.getLastName(),result.getLastName());
+        assertEquals(savedStudent.getEmail(),result.getEmail());
+        assertEquals(savedStudent.getIndexNumber(),result.getIndexNumber());
 
 
     }
@@ -82,7 +86,8 @@ class UserServiceTest {
     StudentRequestDto requestDto = new StudentRequestDto(
             "Jan",
             "Kowalski",
-            "password123");
+            "password123",
+            Role.STUDENT);
     String existingEmail = "jan.kowalski@uniportal.com";
 
     // when
@@ -107,7 +112,8 @@ class UserServiceTest {
                     "Kulas",
                     "password123",
                     AcademicTitle.dr,
-                    DepartmentName.COMPUTER_SCIENCE);
+                    DepartmentName.COMPUTER_SCIENCE,
+                    Role.TEACHER);
         String expectedEmail = "adam.kulas@uniportal.com";
         Teacher savedTeacher = new Teacher(requestDto.firstName(),
                     requestDto.lastName(),
@@ -118,17 +124,18 @@ class UserServiceTest {
         savedTeacher.setId(1L);
         //when
         when(teacherRepository.save(any(Teacher.class))).thenReturn(savedTeacher);
-        TeacherResponseDto result = userService.createTeacher(requestDto);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed_password");
+        Teacher result = userService.createTeacher(requestDto);
 
         //then
         verify(teacherRepository).save(any(Teacher.class));
 
-        assertEquals(savedTeacher.getId(),result.id());
-        assertEquals(savedTeacher.getFirstName(),result.firstName());
-        assertEquals(savedTeacher.getLastName(),result.lastName());
-        assertEquals(savedTeacher.getEmail(),result.email());
-        assertEquals(savedTeacher.getAcademicTitle(),result.academicTitle());
-        assertEquals(savedTeacher.getDepartment(),result.department());
+        assertEquals(savedTeacher.getId(),result.getId());
+        assertEquals(savedTeacher.getFirstName(),result.getFirstName());
+        assertEquals(savedTeacher.getLastName(),result.getLastName());
+        assertEquals(savedTeacher.getEmail(),result.getEmail());
+        assertEquals(savedTeacher.getAcademicTitle(),result.getAcademicTitle());
+        assertEquals(savedTeacher.getDepartment(),result.getDepartment());
 
 
     }
@@ -141,7 +148,8 @@ class UserServiceTest {
                     "Kulas",
                     "password123",
                     AcademicTitle.dr,
-                    DepartmentName.COMPUTER_SCIENCE);
+                    DepartmentName.COMPUTER_SCIENCE,
+                    Role.TEACHER);
         String expectedEmail = "adam.kulas@uniportal.com";
         // when
          when(userRepository.existsByEmail(anyString())).thenReturn(true);
