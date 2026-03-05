@@ -51,30 +51,12 @@ public class Config {
     }
 
 
-//@Bean
-//SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//    http
-//        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//        .csrf(AbstractHttpConfigurer::disable)
-//        .authorizeHttpRequests(req -> req
-//            .anyRequest().permitAll() // To otworzy absolutnie wszystkie endpointy
-//        )
-//        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-//        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//        // Możesz tymczasowo zakomentować authenticationProvider i filtr JWT,
-//        // żeby nie przeszkadzały, jeśli nie przesyłasz tokenów.
-//        // .authenticationProvider(authenticationProvider)
-//        // .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//    return http.build();
-//}
-
      @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-            "http://localhost:4200"
-            // add address
+            "http://localhost:4200",
+            "https://uniportall.netlify.app"
 
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
