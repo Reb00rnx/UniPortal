@@ -32,6 +32,12 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        if (teacherRepository.count() > 0 || studentRepository.count() > 0) {
+            log.info("ℹ️ Database already initialized. Skipping data loading...");
+            return;
+        }
+
         log.info("🚀 Starting data initialization...");
 
         // ==================== TEACHERS ====================
@@ -208,29 +214,24 @@ public class DataLoader implements CommandLineRunner {
         // ==================== COURSE MODULES ====================
         log.info("📦 Adding modules to courses...");
 
-        // ADS-101
         courseModuleRepository.save(new CourseModule(0L, "Introduction & Complexity", "Big O notation, time and space complexity overview.", 1, course1));
         courseModuleRepository.save(new CourseModule(0L, "Sorting Algorithms", "QuickSort, MergeSort, and stability in sorting.", 2, course1));
         courseModuleRepository.save(new CourseModule(0L, "Linear Data Structures", "Deep dive into Linked Lists, Stacks, and Queues.", 3, course1));
         courseModuleRepository.save(new CourseModule(0L, "Trees and Graphs", "Binary trees, BST, BFS and DFS traversal.", 4, course1));
 
-        // OOP-102
         courseModuleRepository.save(new CourseModule(0L, "Classes and Objects", "Basics of encapsulation, constructors, and modifiers.", 1, course2));
         courseModuleRepository.save(new CourseModule(0L, "Inheritance & Polymorphism", "Extending classes and method overriding techniques.", 2, course2));
         courseModuleRepository.save(new CourseModule(0L, "Interfaces & Abstraction", "Difference between abstract classes and interfaces.", 3, course2));
         courseModuleRepository.save(new CourseModule(0L, "Design Patterns", "Introduction to Singleton, Factory, and Observer patterns.", 4, course2));
 
-        // DBS-201
         courseModuleRepository.save(new CourseModule(0L, "Relational Model", "Tables, keys, and relationships in relational databases.", 1, course3));
         courseModuleRepository.save(new CourseModule(0L, "SQL Basics", "SELECT, INSERT, UPDATE, DELETE — core SQL operations.", 2, course3));
         courseModuleRepository.save(new CourseModule(0L, "Normalization", "1NF, 2NF, 3NF and why they matter.", 3, course3));
 
-        // WDF-202
         courseModuleRepository.save(new CourseModule(0L, "HTML & CSS Foundations", "Semantic HTML, box model, Flexbox and Grid.", 1, course4));
         courseModuleRepository.save(new CourseModule(0L, "JavaScript Essentials", "Variables, functions, DOM manipulation and events.", 2, course4));
         courseModuleRepository.save(new CourseModule(0L, "REST APIs & Fetch", "Consuming REST APIs with Fetch and handling async code.", 3, course4));
 
-        // LA-301
         courseModuleRepository.save(new CourseModule(0L, "Vectors and Matrices", "Vector spaces, matrix operations and determinants.", 1, course5));
         courseModuleRepository.save(new CourseModule(0L, "Linear Transformations", "Mapping between vector spaces, kernel and image.", 2, course5));
         courseModuleRepository.save(new CourseModule(0L, "Eigenvalues & Eigenvectors", "Characteristic polynomial and diagonalization.", 3, course5));
@@ -266,7 +267,6 @@ public class DataLoader implements CommandLineRunner {
         // ==================== GRADES ====================
         log.info("📝 Adding grades...");
 
-        // --- course1: ADS-101 ---
         gradeRepository.save(new Grade(GradeValue.FIVE,       student1, course1, "Excellent work on Task 1"));
         gradeRepository.save(new Grade(GradeValue.FOUR_HALF,  student1, course1, "Midterm Exam result"));
         gradeRepository.save(new Grade(GradeValue.THREE_HALF, student1, course1, "Quiz about complexity"));
@@ -291,7 +291,6 @@ public class DataLoader implements CommandLineRunner {
         gradeRepository.save(new Grade(GradeValue.FOUR,       student7, course1, "Good understanding of trees"));
         gradeRepository.save(new Grade(GradeValue.FOUR_HALF,  student7, course1, "Final project submission"));
 
-        // --- course2: OOP-102 ---
         gradeRepository.save(new Grade(GradeValue.THREE_HALF, student1, course2, "Final project – need more encapsulation"));
         gradeRepository.save(new Grade(GradeValue.FOUR,       student1, course2, "Design patterns assignment"));
 
@@ -313,7 +312,6 @@ public class DataLoader implements CommandLineRunner {
         gradeRepository.save(new Grade(GradeValue.FOUR_HALF,  student7, course2, "Good grasp of inheritance"));
         gradeRepository.save(new Grade(GradeValue.FOUR,       student7, course2, "Midterm"));
 
-        // --- course3: DBS-201 ---
         gradeRepository.save(new Grade(GradeValue.FIVE,       student1, course3, "SQL project — advanced queries"));
         gradeRepository.save(new Grade(GradeValue.FOUR_HALF,  student1, course3, "Normalization task"));
         gradeRepository.save(new Grade(GradeValue.FOUR,       student1, course3, "Midterm Exam"));
@@ -329,7 +327,6 @@ public class DataLoader implements CommandLineRunner {
         gradeRepository.save(new Grade(GradeValue.FOUR,       student4, course3, "SQL advanced task"));
         gradeRepository.save(new Grade(GradeValue.FIVE,       student4, course3, "Final exam"));
 
-        // --- course4: WDF-202 ---
         gradeRepository.save(new Grade(GradeValue.FOUR,       student3, course4, "HTML/CSS landing page project"));
         gradeRepository.save(new Grade(GradeValue.FOUR_HALF,  student3, course4, "JavaScript task — DOM events"));
 
@@ -344,7 +341,6 @@ public class DataLoader implements CommandLineRunner {
         gradeRepository.save(new Grade(GradeValue.FOUR,       student7, course4, "Midterm Exam"));
         gradeRepository.save(new Grade(GradeValue.FIVE,       student7, course4, "Final project — impressive work"));
 
-        // --- course5: LA-301 ---
         gradeRepository.save(new Grade(GradeValue.FOUR_HALF,  student1, course5, "Vectors homework"));
         gradeRepository.save(new Grade(GradeValue.FOUR,       student1, course5, "Midterm"));
         gradeRepository.save(new Grade(GradeValue.THREE_HALF, student1, course5, "Eigenvalues quiz — tough topic"));
