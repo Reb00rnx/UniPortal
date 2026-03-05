@@ -10,7 +10,6 @@ import com.uniportal.Repository.GradeRepository;
 import com.uniportal.Repository.StudentRepository;
 import com.uniportal.User.Student;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.parsers.ReturnTypeParser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +24,15 @@ public class GradeService {
     private final StudentRepository studentRepository;
     private final GradeRepository gradeRepository;
     private final CourseRepository courseRepository;
-    private final ReturnTypeParser returnTypeParser;
+
 
     public GradeService(StudentRepository studentRepository,
                         GradeRepository gradeRepository,
-                        CourseRepository courseRepository, ReturnTypeParser returnTypeParser) {
+                        CourseRepository courseRepository) {
         this.studentRepository = studentRepository;
         this.gradeRepository = gradeRepository;
         this.courseRepository = courseRepository;
-        this.returnTypeParser = returnTypeParser;
+
     }
 
     @Transactional
@@ -49,8 +48,8 @@ public class GradeService {
         Grade grade = new Grade(
                 requestDto.value(),
                 student,
-                course
-
+                course,
+                requestDto.description()
         );
 
         Grade savedGrade = gradeRepository.save(grade);
@@ -122,6 +121,14 @@ public class GradeService {
     return new CourseTeacherReportDto(course.getName(), performanceDtos);
 }
 
+    @Transactional
+public void deleteGrade(Long gradeId) {
+    if (!gradeRepository.existsById(gradeId)) {
+        throw new ResourceNotFoundException("Grade not found");
+    }
+    gradeRepository.deleteById(gradeId);
+}
+
     //private methods-----------------------------
 
     private double averageGradeCalculator(List<Grade> gradeList){
@@ -150,16 +157,16 @@ public class GradeService {
     }
 
     private GradeResponseDto mapToResponse(Grade grade) {
-        String studentName = grade.getStudent().getFirstName() +" "+ grade.getStudent().getLastName();
-    return new GradeResponseDto(
-        grade.getId(),
-        grade.getValue(),
-        grade.getValue().getNumericValue(),
-        studentName,
-        grade.getCourse().getName()
-
-    );
-}
+        String studentName = grade.getStudent().getFirstName() + " " + grade.getStudent().getLastName();
+        return new GradeResponseDto(
+            grade.getId(),
+            grade.getValue(),
+            grade.getValue().getNumericValue(),
+            studentName,
+            grade.getCourse().getName(),
+            grade.getDescription()
+        );
+    }
 
 
 

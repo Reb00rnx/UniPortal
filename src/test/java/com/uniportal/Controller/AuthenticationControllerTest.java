@@ -6,6 +6,7 @@ import com.uniportal.Auth.AuthenticationResponse;
 import com.uniportal.Enums.AcademicTitle;
 import com.uniportal.Enums.DepartmentName;
 import com.uniportal.Enums.Role;
+import com.uniportal.SecurityConfig.JwtAuthenticationFilter;
 import com.uniportal.SecurityConfig.JwtService;
 import com.uniportal.Service.AuthenticationService;
 import com.uniportal.User.Dto.StudentRequestDto;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -34,6 +36,12 @@ class AuthenticationControllerTest {
     private AuthenticationService authenticationService;
 
     @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private AuthenticationProvider authenticationProvider;
+
+    @MockBean
     private JwtService jwtService;
 
     @Autowired
@@ -43,8 +51,9 @@ class AuthenticationControllerTest {
 void registerStudent_ShouldReturnOk() throws Exception {
     // given
     StudentRequestDto request = new StudentRequestDto("Jan", "Kowalski", "StrongPass123!", Role.STUDENT);
-    AuthenticationResponse response = new AuthenticationResponse("token-123");
-
+    AuthenticationResponse response = AuthenticationResponse.builder()
+            .token("token-123")
+            .build();
     when(authenticationService.registerStudent(any())).thenReturn(response);
 
     // when & then
@@ -61,7 +70,9 @@ void registerTeacher_ShouldReturnOk() throws Exception {
     TeacherRequestDto request = new TeacherRequestDto(
             "Adam", "Kulas", "StrongPass123!",
             AcademicTitle.dr, DepartmentName.COMPUTER_SCIENCE, Role.TEACHER);
-    AuthenticationResponse response = new AuthenticationResponse("token-456");
+    AuthenticationResponse response = AuthenticationResponse.builder()
+            .token("token-456")
+            .build();
 
     when(authenticationService.registerTeacher(any())).thenReturn(response);
 
@@ -77,7 +88,9 @@ void registerTeacher_ShouldReturnOk() throws Exception {
     void authenticate_ShouldReturnOk() throws Exception {
         // given
         AuthenticationRequest request = new AuthenticationRequest("jan.k@student.uniportal.com", "pass123");
-        AuthenticationResponse response = new AuthenticationResponse("token-789");
+        AuthenticationResponse response = AuthenticationResponse.builder()
+            .token("token-789")
+            .build();
 
         when(authenticationService.authenticate(any())).thenReturn(response);
 

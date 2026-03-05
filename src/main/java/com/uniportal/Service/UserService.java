@@ -16,6 +16,7 @@ import com.uniportal.User.Dto.TeacherRequestDto;
 import com.uniportal.User.Dto.TeacherResponseDto;
 import com.uniportal.User.Student;
 import com.uniportal.User.Teacher;
+import com.uniportal.User.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +74,25 @@ public class UserService {
 
         return teacherRepository.save(teacher);
     }
+    public List<User> getAllUsers(){
+        return userRepository.findAll();
+    }
+
+    public Object getUser(Long id) {
+    User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    if (user instanceof Student student) {
+        return mapToResponse(student);
+    } else if (user instanceof Teacher teacher) {
+        return mapToResponse(teacher);
+    }
+
+    throw new BusinessLogicException("Unknown user type");
+}
+
+
+
 
 
 

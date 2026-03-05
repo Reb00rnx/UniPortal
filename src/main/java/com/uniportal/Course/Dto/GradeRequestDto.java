@@ -1,6 +1,7 @@
 package com.uniportal.Course.Dto;
 
 import com.uniportal.Enums.GradeValue;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record GradeRequestDto(
@@ -11,5 +12,10 @@ public record GradeRequestDto(
     Long studentId,
 
     @NotNull(message = "Course ID is required")
-    Long courseId
+    Long courseId,
+
+    @NotBlank(message = "Grade description is required")
+    String description
+
+
 ) {}

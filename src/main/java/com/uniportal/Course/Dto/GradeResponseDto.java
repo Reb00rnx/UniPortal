@@ -7,5 +7,6 @@ public record GradeResponseDto(
         GradeValue value,
         double numericValue,
         String studentName,
-        String courseName) {
+        String courseName,
+        String description) {
 }

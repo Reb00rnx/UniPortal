@@ -15,9 +15,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,8 +40,8 @@ class GradeControllerTest {
     @Test
     void addGrade_ShouldReturnCreated() throws Exception {
         // given
-        GradeRequestDto request = new GradeRequestDto(GradeValue.FOUR, 1L, 1L);
-        GradeResponseDto response = new GradeResponseDto(10L, GradeValue.FOUR, 4.0, "Jan Kowalski", "Java Basics");
+        GradeRequestDto request = new GradeRequestDto(GradeValue.FOUR, 1L, 1L, "Kolokwium 1");
+        GradeResponseDto response = new GradeResponseDto(10L, GradeValue.FOUR, 4.0, "Jan Kowalski", "Java Basics", "Kolokwium 1");
 
         when(gradeService.addGrade(any(GradeRequestDto.class))).thenReturn(response);
 
@@ -52,15 +52,16 @@ class GradeControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.numericValue").value(4.0))
-                .andExpect(jsonPath("$.studentName").value("Jan Kowalski"));
+                .andExpect(jsonPath("$.studentName").value("Jan Kowalski"))
+                .andExpect(jsonPath("$.description").value("Kolokwium 1"));
     }
 
     @Test
     void getAllStudentGrades_ShouldReturnList() throws Exception {
         // given
         List<GradeResponseDto> grades = List.of(
-                new GradeResponseDto(10L, GradeValue.FIVE, 5.0, "Jan Kowalski", "Java"),
-                new GradeResponseDto(11L, GradeValue.THREE, 3.0, "Jan Kowalski", "Math")
+                new GradeResponseDto(10L, GradeValue.FIVE, 5.0, "Jan Kowalski", "Java", "Projekt końcowy"),
+                new GradeResponseDto(11L, GradeValue.THREE, 3.0, "Jan Kowalski", "Math", "Egzamin")
         );
 
         when(gradeService.getAllStudentGrades(anyLong())).thenReturn(grades);
@@ -76,7 +77,7 @@ class GradeControllerTest {
     @Test
     void addGrade_ShouldReturnBadRequest_WhenValueIsNull() throws Exception {
         // given
-        GradeRequestDto invalidRequest = new GradeRequestDto(null, 1L, 1L);
+        GradeRequestDto invalidRequest = new GradeRequestDto(null, 1L, 1L, "Kolokwium 1");
 
         // when & then
         mockMvc.perform(post("/api/grade")
@@ -87,45 +88,68 @@ class GradeControllerTest {
     }
 
     @Test
-void getStudentCourseSummary_ShouldReturnSummary() throws Exception {
-    // given
-    List<GradeResponseDto> grades = List.of(
-            new GradeResponseDto(1L, GradeValue.FIVE, 5.0, "Jan Kowalski", "Java")
-    );
-    StudentCourseSummaryDto summary = new StudentCourseSummaryDto(
-            "Java",
-            "Adam Nowak",
-            grades,
-            5.0
-    );
+    void addGrade_ShouldReturnBadRequest_WhenDescriptionIsBlank() throws Exception {
+        // given — ten test weryfikuje @NotBlank na description
+        GradeRequestDto invalidRequest = new GradeRequestDto(GradeValue.FOUR, 1L, 1L, "");
 
-    when(gradeService.getStudentCourseSummary(anyLong(), anyLong())).thenReturn(summary);
+        // when & then
+        mockMvc.perform(post("/api/grade")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.description").value("Grade description is required"));
+    }
 
-    // when & then
-    mockMvc.perform(get("/api/grade/summary/1/1"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.courseName").value("Java"))
-            .andExpect(jsonPath("$.averageGrade").value(5.0))
-            .andExpect(jsonPath("$.grades[0].value").value("FIVE"));
-}
+    @Test
+    void getStudentCourseSummary_ShouldReturnSummary() throws Exception {
+        // given
+        List<GradeResponseDto> grades = List.of(
+                new GradeResponseDto(1L, GradeValue.FIVE, 5.0, "Jan Kowalski", "Java", "Projekt końcowy")
+        );
+        StudentCourseSummaryDto summary = new StudentCourseSummaryDto(
+                "Java",
+                "Adam Nowak",
+                grades,
+                5.0
+        );
 
-@Test
-void getTeacherReport_ShouldReturnReport() throws Exception {
-    // given
-    List<StudentPerformanceDto> performance = List.of(
-            new StudentPerformanceDto("Jan Kowalski", 4.5),
-            new StudentPerformanceDto("Anna Nowak", 5.0)
-    );
-    CourseTeacherReportDto report = new CourseTeacherReportDto("Java Basics", performance);
+        when(gradeService.getStudentCourseSummary(anyLong(), anyLong())).thenReturn(summary);
 
-    when(gradeService.getTeacherReport(anyLong())).thenReturn(report);
+        // when & then
+        mockMvc.perform(get("/api/grade/summary/1/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.courseName").value("Java"))
+                .andExpect(jsonPath("$.averageGrade").value(5.0))
+                .andExpect(jsonPath("$.grades[0].value").value("FIVE"));
+    }
 
-    // when & then
-    mockMvc.perform(get("/api/grade/course/1/report"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.courseName").value("Java Basics"))
-            .andExpect(jsonPath("$.studentsPerformance.size()").value(2))
-            .andExpect(jsonPath("$.studentsPerformance[0].fullStudentName").value("Jan Kowalski"))
-            .andExpect(jsonPath("$.studentsPerformance[1].avg").value(5.0));
-}
+    @Test
+    void getTeacherReport_ShouldReturnReport() throws Exception {
+        // given
+        List<StudentPerformanceDto> performance = List.of(
+                new StudentPerformanceDto("Jan Kowalski", 4.5),
+                new StudentPerformanceDto("Anna Nowak", 5.0)
+        );
+        CourseTeacherReportDto report = new CourseTeacherReportDto("Java Basics", performance);
+
+        when(gradeService.getTeacherReport(anyLong())).thenReturn(report);
+
+        // when & then
+        mockMvc.perform(get("/api/grade/course/1/report"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.courseName").value("Java Basics"))
+                .andExpect(jsonPath("$.studentsPerformance.size()").value(2))
+                .andExpect(jsonPath("$.studentsPerformance[0].fullStudentName").value("Jan Kowalski"))
+                .andExpect(jsonPath("$.studentsPerformance[1].avg").value(5.0));
+    }
+
+    @Test
+    void deleteGrade_ShouldReturnNoContent() throws Exception {
+        // given
+        doNothing().when(gradeService).deleteGrade(anyLong());
+
+        // when & then
+        mockMvc.perform(delete("/api/grade/1"))
+                .andExpect(status().isNoContent());
+    }
 }

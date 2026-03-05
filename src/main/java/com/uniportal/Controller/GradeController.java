@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/grade")
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
 public class GradeController {
 
     private final GradeService gradeService;
@@ -47,6 +48,12 @@ public ResponseEntity<List<GradeResponseDto>> getAllStudentGrades(@PathVariable 
         CourseTeacherReportDto reportDto = gradeService.getTeacherReport(courseId);
         return ResponseEntity.ok(reportDto);
     }
+
+    @DeleteMapping("/{gradeId}")
+public ResponseEntity<Void> deleteGrade(@PathVariable Long gradeId) {
+    gradeService.deleteGrade(gradeId);
+    return ResponseEntity.noContent().build();
+}
 
 
 

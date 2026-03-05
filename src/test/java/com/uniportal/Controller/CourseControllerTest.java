@@ -3,6 +3,7 @@ package com.uniportal.Controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uniportal.Course.Dto.CourseRequestDto;
 import com.uniportal.Course.Dto.CourseResponseDto;
+import com.uniportal.Course.Dto.ModuleResponseDto;
 import com.uniportal.Enums.AcademicTitle;
 import com.uniportal.Enums.DepartmentName;
 import com.uniportal.SecurityConfig.JwtService;
@@ -52,10 +53,14 @@ class CourseControllerTest {
         );
     }
 
+    private ModuleResponseDto createMockModule(){
+        return new ModuleResponseDto(1L,"Java","we study hard", 1);
+    }
+
     @Test
     void createCourse_ShouldReturnCreated() throws Exception {
         CourseRequestDto request = new CourseRequestDto("Java Basics", 1L, List.of());
-        CourseResponseDto response = new CourseResponseDto(10L, "Java Basics", "JAV-1", createMockTeacher(), List.of());
+        CourseResponseDto response = new CourseResponseDto(10L, "Java Basics", "JAV-1", createMockTeacher(), List.of(),List.of());
 
         when(courseService.createCourse(any())).thenReturn(response);
 
@@ -81,7 +86,7 @@ class CourseControllerTest {
     @Test
     void getAllCourses_ShouldReturnList() throws Exception {
         List<CourseResponseDto> courses = List.of(
-                new CourseResponseDto(1L, "Math", "MAT-01", createMockTeacher(), List.of())
+                new CourseResponseDto(1L, "Math", "MAT-01", createMockTeacher(), List.of(),List.of())
         );
 
         when(courseService.getAllCourses()).thenReturn(courses);
@@ -100,7 +105,7 @@ class CourseControllerTest {
 
     @Test
     void enrollStudent_ShouldReturnUpdatedCourse() throws Exception {
-        CourseResponseDto response = new CourseResponseDto(1L, "Java", "JAV-1", createMockTeacher(), List.of());
+        CourseResponseDto response = new CourseResponseDto(1L, "Java", "JAV-1", createMockTeacher(), List.of(),List.of());
 
         when(courseService.enrollStudent(anyLong(), anyLong())).thenReturn(response);
 

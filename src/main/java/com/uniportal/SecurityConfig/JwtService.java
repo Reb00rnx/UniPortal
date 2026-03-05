@@ -35,6 +35,9 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        if(userDetails instanceof com.uniportal.User.User user){
+            extraClaims.put("id",user.getId());
+        }
         return Jwts.builder().setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))

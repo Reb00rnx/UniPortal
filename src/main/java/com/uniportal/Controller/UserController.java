@@ -6,7 +6,9 @@ import com.uniportal.User.Dto.StudentResponseDto;
 import com.uniportal.User.Dto.TeacherRequestDto;
 import com.uniportal.User.Dto.TeacherResponseDto;
 import com.uniportal.Service.UserService;
+import com.uniportal.User.User;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,15 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<Object> getUserInfo(@PathVariable Long  id){
+        Object response = userService.getUser(id);
+        return ResponseEntity.ok().body(response);
+    }
+
+
+
 
 
 

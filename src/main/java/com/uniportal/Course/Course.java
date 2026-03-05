@@ -36,6 +36,9 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private Set<Grade> grades = new HashSet<>();
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<CourseModule> modules;
+
     public Course(String name, String code, Teacher teacher, Set<Student> students) {
     this.name = name;
     this.code = code;

@@ -21,6 +21,9 @@ public class Grade {
     @Column(name = "grade_value")
     private GradeValue value;
 
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private Student student;
@@ -30,9 +33,11 @@ public class Grade {
 
     public Grade(GradeValue value,
                  Student student,
-                 Course course) {
+                 Course course,
+                 String description) {
         this.value = value;
         this.student = student;
         this.course = course;
+        this.description = description;
     }
 }

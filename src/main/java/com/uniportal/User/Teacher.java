@@ -2,9 +2,7 @@ package com.uniportal.User;
 
 import com.uniportal.Enums.AcademicTitle;
 import com.uniportal.Enums.DepartmentName;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,4 +30,5 @@ public class Teacher extends User {
         this.academicTitle = academicTitle;
         this.department = department;
     }
+
 }

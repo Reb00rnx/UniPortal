@@ -1,5 +1,6 @@
 package com.uniportal.Course.Dto;
 
+import com.uniportal.Course.CourseModule;
 import com.uniportal.User.Dto.StudentResponseDto;
 import com.uniportal.User.Dto.TeacherResponseDto;
 
@@ -10,7 +11,9 @@ public record CourseResponseDto(
         String name,
         String code,
         TeacherResponseDto teacher,
-        List<StudentResponseDto> students)
+        List<StudentResponseDto> students,
+        List<ModuleResponseDto> modules
+)
 {
 
 }
