@@ -32,31 +32,23 @@ public class Config {
     }
 
 @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(req -> req
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/h2-console/**").permitAll()
-            .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-            .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users/students", "/api/users/teachers").permitAll()
-            .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
-            .requestMatchers("/api/schedule/**").permitAll()
-            .requestMatchers(
-                "/api/courses/all",
-                "/api/courses/{courseId}/enroll/{studentId}",
-                "/api/courses/{courseId}",
-                "/api/grade/**"
-            ).hasAnyRole("STUDENT", "TEACHER","ADMIN")
-            .anyRequest().authenticated())
-        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(req -> req
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated()
+            )
+            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-    return http.build();
-}
+        return http.build();
+    }
 
 
 //@Bean
@@ -77,10 +69,14 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 //    return http.build();
 //}
 
-    @Bean
+     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:4200"
+            // add address
+
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
