@@ -56,7 +56,8 @@ public class Config {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
             "http://localhost:4200",
-            "https://uniportall.netlify.app"
+            "https://uniportall.netlify.app",
+                "https://*.netlify.app"
 
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
