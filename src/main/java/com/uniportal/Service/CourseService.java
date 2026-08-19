@@ -64,6 +64,8 @@ public class CourseService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student id:" + studentId + " not found"));
 
+
+
         if (course.getStudents().contains(student)) {
             throw new ConflictException("Student is already enrolled in this course");
         }

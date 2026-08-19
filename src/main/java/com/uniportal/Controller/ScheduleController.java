@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/schedule")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://uniportall.netlify.app"})
 public class ScheduleController {
 
     private final ScheduleService scheduleService;

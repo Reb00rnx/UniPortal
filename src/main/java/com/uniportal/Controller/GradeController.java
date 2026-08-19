@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/grade")
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:4200", "https://uniportall.netlify.app"}, allowedHeaders = "*", allowCredentials = "true")
 public class GradeController {
 
     private final GradeService gradeService;
